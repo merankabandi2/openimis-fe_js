@@ -9,12 +9,12 @@
             "fileNames": "en"
         },
         {
-            "languages": [
-                "np",
-                "np-NP"
-            ],
-            "intl": "np-NP",
-            "fileNames": "np"
+          "languages": [
+            "fr",
+            "fr-FR"
+          ],
+          "intl": "fr-FR",
+          "fileNames": "fr"
         }
     ],
     "modules": [
