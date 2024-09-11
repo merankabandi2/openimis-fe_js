@@ -107,8 +107,8 @@
             "npm": "@openimis/fe-grievance_social_protection@git://github.com/openimis/openimis-fe-grievance_social_protection_js.git#release/24.10"
         },
         {
-            "name": "NepalLanguageModule",
-            "npm": "@openimis/fe-nepal_language_pack@git://github.com/openimis/openimis-fe-nepal_language_pack_js.git#release/24.10"
+            "name": "LanguageFrModule",
+            "npm": "@openimis/fe-language_fr@git://github.com/openimis/openimis-fe-language_fr_js.git#release/24.10"
         },
         {
             "name": "ClaimSamplingModule",
