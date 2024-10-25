@@ -1,4 +1,4 @@
-name: create daily docker image on develop
+name: Create daily Docker image on develop
 on:
   workflow_dispatch:
   schedule:
@@ -16,7 +16,7 @@ jobs:
         registry: ghcr.io
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build the openimis backend  Docker image
+    - name: Building the openIMIS Frontend Docker image
       run: |
          LABEL=develop
          docker build . --tag ghcr.io/openimis/openimis-fe:${LABEL}
