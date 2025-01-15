@@ -20,15 +20,15 @@
   "modules": [
     {
       "name": "CoreModule",
-      "npm": "@openimis/fe-core@git://github.com/openimis/openimis-fe-core_js.git#develop"
+      "npm": "@openimis/fe-core@git+https://github.com/merankabandi2/openimis-fe-core_js.git#main"
     },
     {
       "name": "IndividualModule",
-      "npm": "@openimis/fe-individual@git+https://github.com/openimis/openimis-fe-individual_js.git#develop"
+      "npm": "@openimis/fe-individual@git+https://github.com/merankabandi2/openimis-fe-individual_js.git#main"
     },
     {
       "name": "SocialProtectionModule",
-      "npm": "@openimis/fe-social_protection@git+https://github.com/openimis/openimis-fe-social_protection_js.git#develop"
+      "npm": "@openimis/fe-social_protection@git+https://github.com/merankabandi2/openimis-fe-social_protection_js.git#main"
     },
     {
       "name": "OpenSearchReportsModule",
@@ -40,11 +40,11 @@
     },
     {
       "name": "LocationModule",
-      "npm": "@openimis/fe-location@git://github.com/openimis/openimis-fe-location_js.git#develop"
+      "npm": "@openimis/fe-location@git://github.com/merankabandi2/openimis-fe-location_js.git#main"
     },
     {
       "name": "ContributionModule",
-      "npm": "@openimis/fe-contribution@git://github.com/openimis/openimis-fe-contribution_js.git#develop"
+      "npm": "@openimis/fe-contribution@git+https://github.com/openimis/openimis-fe-contribution_js.git#develop"
     },
     {
       "name": "PaymentModule",
@@ -52,7 +52,7 @@
     },
     {
       "name": "AdminModule",
-      "npm": "@openimis/fe-admin@git://github.com/openimis/openimis-fe-admin_js.git#develop"
+      "npm": "@openimis/fe-admin@git+https://github.com/openimis/openimis-fe-admin_js.git#develop"
     },
     {
       "name": "ToolsModule",
@@ -72,7 +72,7 @@
     },
     {
       "name": "ContributionPlanModule",
-      "npm": "@openimis/fe-contribution_plan@git://github.com/openimis/openimis-fe-contribution_plan_js.git#develop"
+      "npm": "@openimis/fe-contribution_plan@git+https://github.com/openimis/openimis-fe-contribution_plan_js.git#develop"
     },
     {
       "name": "PaymentCycleModule",
@@ -100,7 +100,7 @@
     },
     {
       "name": "PayrollModule",
-      "npm": "@openimis/fe-payroll@git+https://github.com/openimis/openimis-fe-payroll_js.git#develop"
+      "npm": "@openimis/fe-payroll@git+https://github.com/merankabandi2/openimis-fe-payroll_js.git#main"
     }
   ]
 }
