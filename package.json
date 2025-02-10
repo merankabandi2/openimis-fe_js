@@ -51,7 +51,7 @@
     "@openimis/fe-payroll": "git+https://github.com/merankabandi2/openimis-fe-payroll_js.git#main"
   },
   "scripts": {
-    "start": "HOST=mis.mira.test react-scripts start",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "load-config": "node ./openimis-config.js",
     "postinstall": "node script/postinstall.js",
