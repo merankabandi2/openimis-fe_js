@@ -36,11 +36,11 @@
     },
     {
       "name": "HomeModule",
-      "npm": "@openimis/fe-home@git://github.com/openimis/openimis-fe-home_js.git#develop"
+      "npm": "@openimis/fe-home@git+https://github.com/merankabandi2/openimis-fe-home_js.git#main"
     },
     {
       "name": "LocationModule",
-      "npm": "@openimis/fe-location@git://github.com/merankabandi2/openimis-fe-location_js.git#main"
+      "npm": "@openimis/fe-location@git+https://github.com/merankabandi2/openimis-fe-location_js.git#main"
     },
     {
       "name": "ContributionModule",
@@ -48,7 +48,7 @@
     },
     {
       "name": "PaymentModule",
-      "npm": "@openimis/fe-payment@git://github.com/openimis/openimis-fe-payment_js.git#develop"
+      "npm": "@openimis/fe-payment@git+https://github.com/openimis/openimis-fe-payment_js.git#develop"
     },
     {
       "name": "AdminModule",
@@ -56,19 +56,19 @@
     },
     {
       "name": "ToolsModule",
-      "npm": "@openimis/fe-tools@git://github.com/openimis/openimis-fe-tools_js.git#develop"
+      "npm": "@openimis/fe-tools@git+https://github.com/openimis/openimis-fe-tools_js.git#develop"
     },
     {
       "name": "ProfileModule",
-      "npm": "@openimis/fe-profile@git://github.com/openimis/openimis-fe-profile_js.git#develop"
+      "npm": "@openimis/fe-profile@git+https://github.com/openimis/openimis-fe-profile_js.git#develop"
     },
     {
       "name": "CalculationModule",
-      "npm": "@openimis/fe-calculation@git://github.com/openimis/openimis-fe-calculation_js.git#develop"
+      "npm": "@openimis/fe-calculation@git+https://github.com/openimis/openimis-fe-calculation_js.git#develop"
     },
     {
       "name": "PolicyHolderModule",
-      "npm": "@openimis/fe-policyholder@git://github.com/openimis/openimis-fe-policyholder_js.git#develop"
+      "npm": "@openimis/fe-policyholder@git+https://github.com/openimis/openimis-fe-policyholder_js.git#develop"
     },
     {
       "name": "ContributionPlanModule",
@@ -84,11 +84,11 @@
     },
     {
       "name": "InvoiceModule",
-      "npm": "@openimis/fe-invoice@git://github.com/openimis/openimis-fe-invoice_js.git#develop"
+      "npm": "@openimis/fe-invoice@git+https://github.com/openimis/openimis-fe-invoice_js.git#develop"
     },
     {
       "name": "GrievanceSocialProtectionModule",
-      "npm": "@openimis/fe-grievance_social_protection@git://github.com/openimis/openimis-fe-grievance_social_protection_js.git#develop"
+      "npm": "@openimis/fe-grievance_social_protection@git+https://github.com/merankabandi2/openimis-fe-grievance_social_protection_js.git#main"
     },
     {
       "name": "LanguageFrModule",
