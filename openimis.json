@@ -36,7 +36,7 @@
     },
     {
       "name": "HomeModule",
-      "npm": "@openimis/fe-home@git+https://github.com/merankabandi2/openimis-fe-home_js.git#main"
+      "npm": "@openimis/fe-home@git+https://github.com/openimis/openimis-fe-home_js.git#develop"
     },
     {
       "name": "LocationModule",
