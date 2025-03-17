@@ -27,6 +27,27 @@ const theme = createTheme({
         }
       },
     },
+    MuiTablePagination: {
+      actions: {
+        color: "#858796",
+        "& .MuiIconButton-root": {
+          color: "#858796",
+          "&:hover": {
+            backgroundColor: "#eaecf4",
+            color: "#4e73df",
+          },
+          "&.Mui-disabled": {
+            color: "rgba(133, 135, 150, 0.3)",
+          },
+          "& .MuiSvgIcon-root": {
+            fill: "#858796",  // Explicitly set SVG fill color
+            "&:hover": {
+              fill: "#4e73df", // Change color on hover
+            }
+          }
+        }
+      },
+    },
     MuiAccordion: {
       root:  {
         boxShadow: "none !important",
@@ -66,6 +87,14 @@ const theme = createTheme({
           "border-bottom": "4px solid #4e73df !important",
         }
       },
+    },
+    MuiSvgIcon: {
+      root: {
+        // Ensure SVG icons are visible in table pagination
+        "&.MuiTablePagination-selectIcon, .MuiTablePagination-actions &": {
+          fill: "#858796",
+        }
+      }
     },
   },
   palette: {
