@@ -141,6 +141,6 @@
        {
             "name": "PayrollModule",
             "npm": "@openimis/fe-payroll@https://github.com/openimis/openimis-fe-payroll_js#release/25.04"
-        },
+       }
     ]
 }
