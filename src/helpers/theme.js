@@ -192,7 +192,7 @@ const theme = createTheme({
       width: 500,
     },
     close: {
-      width: 80,
+      width: 0,
     },
     itemDetail: {
       marginLeft: 8,
@@ -474,6 +474,7 @@ const theme = createTheme({
     locked: {
       background: "repeating-linear-gradient(45deg, #D3D3D3 1px, #D3D3D3 1px, #fff 10px, #fff 10px)",
     },
+    paddingBottom: 80,
   },
 });
 
