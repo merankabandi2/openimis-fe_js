@@ -83,6 +83,7 @@ const createAppTheme = (colorOverrides = {}) => {
       drawer: {
         width: 300,
         fontSize: 16,
+        fontWeight: 400,
         backgroundColor: primaryColor,
       },
       appBar: {
@@ -160,6 +161,10 @@ const createAppTheme = (colorOverrides = {}) => {
         fontWeight: 500,
         align: "center",
       },
+      secondaryHighlightedRow: {
+        backgroundColor: "#cbedf2",
+      },
+      secondaryHighlightedCell: {},
       highlightedAltRow: {},
       highlightedAltCell: {
         fontStyle: "italic",
