@@ -3,6 +3,11 @@ import { alpha } from "@material-ui/core/styles/colorManipulator";
 
 const theme = createTheme({
   overrides: {
+    MuiContainer: {
+      root: {
+        maxWidth: "xl",
+      },
+    },
     MuiTableRow: {
       root: {
         "&$selected": {
@@ -19,6 +24,14 @@ const theme = createTheme({
       root: {
         border: "none",
       },
+    },
+    MuiDrawer: {
+        docked: {
+          // Target the specific Grid toolbar inside the drawer
+          '&[class*="JournalDrawer"]': {
+            display: 'none',
+          },
+        },
     },
     MuiToolbar: {
       root: {
