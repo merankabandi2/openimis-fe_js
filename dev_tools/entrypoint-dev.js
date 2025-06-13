@@ -102,10 +102,10 @@ function prepareModuleForLocalDevelopment(modulePath, moduleName, npmPackageName
   shell.cd(modulePath);
   console.log(`Preparing ${moduleName} for local development...`);
 
-  shell.exec("yarn unlink", { silent: true });
-  shell.exec("yarn install");
-  //shell.exec("yarn build");
-  shell.exec("yarn link");
+  shell.exec("npm unlink", { silent: true });
+  shell.exec("npm install");
+  //shell.exec("npm build");
+  shell.exec("npm link");
 
   const modulePackageJson = path.join("package.json");
   let packageVersion;
@@ -176,7 +176,7 @@ function updatePackageInAssembly(modules, basePath, modulesInstallPath) {
     let info = extractModuleInfo(module)
     if (packageJSON.dependencies[info.name] !== `file:${info.path}`) {
       console.log(`Updating ${info.name} in package.json to use local path: file:${info.path}`);
-      shell.exec(`yarn remove ${info.packageName}`, { silent: true });
+      shell.exec(`npm remove ${info.packageName}`, { silent: true });
       packageJSON.dependencies[info.packageName] = `file:${info.path}`;
     } else {
       console.log(`${info.packageName} already linked to file:${info.path}`);
@@ -197,7 +197,7 @@ function updatePackageInAssembly(modules, basePath, modulesInstallPath) {
   modules.forEach((module) => {
     const npmPackageName = parseNpmName(module);
     console.log(`Linking ${npmPackageName}`);
-    shell.exec(`yarn link "${npmPackageName}"`, { silent: true });
+    shell.exec(`npm link "${npmPackageName}"`, { silent: true });
   });
 }
 
