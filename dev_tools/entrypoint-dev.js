@@ -30,7 +30,7 @@ function parseNpmName(module) {
   if (npmMatch) {
     return npmMatch[1];
   }
-  return "@openimis/openimis-fe-" +module.name.replace("Module", "").toLowerCase(); // Fallback if no match
+  return "@openimis/fe-" +module.name.replace("Module", "").toLowerCase(); // Fallback if no match
 }
 function parseNpmBranch(npmStr) {
   const gitMatch = npmStr.match(/github\.com\.+#(.+)/);
@@ -64,8 +64,8 @@ function installAndLinkModules(imisJsonPath, modulesInstallPath) {
   const curPath = String(shell.pwd())
 
   imisJSON.modules.forEach((module) => {
-    info = extractModuleInfo(module)
-    branch = info.branch || 'develop'
+    let info = extractModuleInfo(module)
+    const branch = info.branch || 'develop'
     if (!shell.test("-d", info.path)) {
       console.log(`Module directory ${info.path} does not exist. Cloning from ${info.repoUrl}...`);
       shell.cd(modulesInstallPath);
@@ -173,7 +173,7 @@ function updatePackageInAssembly(modules, basePath, modulesInstallPath) {
   }
 
   modules.forEach((module) => {
-    info = extractModuleInfo(module)
+    let info = extractModuleInfo(module)
     if (packageJSON.dependencies[info.name] !== `file:${info.path}`) {
       console.log(`Updating ${info.name} in package.json to use local path: file:${info.path}`);
       shell.exec(`yarn remove ${info.packageName}`, { silent: true });
