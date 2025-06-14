@@ -102,7 +102,7 @@ function prepareModuleForLocalDevelopment(modulePath, moduleName, npmPackageName
   shell.cd(modulePath);
   console.log(`Preparing ${moduleName} for local development...`);
 
-  shell.exec("npm unlink", { silent: true });
+  shell.exec(`npm unlink ${npmPackageName}`, { silent: true });
   shell.exec("npm install");
   //shell.exec("npm build");
   shell.exec("npm link");
