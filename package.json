@@ -1,8 +1,17 @@
 {
   "name": "@openimis/fe",
-  "version": "25.04",
+  "version": "25.04+",
   "license": "AGPL-3.0-only",
-  "proxy": "http://localhost:8000",
+  "proxies": {
+    "api": {
+      "base": "/api",
+      "target": "http://backend:8000"
+    },
+    "opensearch": {
+      "base": "/opensearch",
+      "target": "http://opensearch:5410"
+    }
+  },
   "homepage": "http://localhost:3000/front",
   "dependencies": {
     "@date-io/core": "^1.3.13",
@@ -27,7 +36,8 @@
     "redux": "^4.0.5",
     "redux-api-middleware": "^3.2.1",
     "redux-thunk": "^2.3.0",
-    "shelljs": "^0.8.4"
+    "shelljs": "^0.8.4",
+    "@openimis/fe-core": "file:.././frontend-packages/CoreModule"
   },
   "scripts": {
     "start": "react-scripts start",
