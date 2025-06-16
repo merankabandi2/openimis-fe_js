@@ -25,6 +25,9 @@ RUN npm run load-config
 RUN npm install 
 RUN npm run build
 
+# Compress static files
+RUN find /app/build -type f \( -name "*.js" -o -name "*.css" -o -name "*.html" -o -name "*.svg" -o -name "*.json" \) -size +1k -exec gzip -9 -k {} \;
+
 # Final NGINX stage
 FROM nginx:latest
 #COPY APP
