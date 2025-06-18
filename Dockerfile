@@ -22,11 +22,19 @@ ENV OPENIMIS_CONF_JSON=${OPENIMIS_CONF_JSON}
 ENV NODE_ENV=production
 COPY --chown=node:node ./ ./
 RUN npm run load-config
-RUN npm install 
+# Configure npm for better network handling and install
+RUN npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm config set fetch-timeout 300000 && \
+    npm config set audit false && \
+    npm config set fund false && \
+    npm cache clean --force && \
+    npm install --verbose || \
+    (echo "First install attempt failed, retrying..." && sleep 10 && npm install --verbose) 
 RUN npm run build
 
 # Compress static files
-RUN find /app/build -type f \( -name "*.js" -o -name "*.css" -o -name "*.html" -o -name "*.svg" -o -name "*.json" \) -size +1k -exec gzip -9 -k {} \;
+RUN find ./ -type f \( -name "*.js" -o -name "*.css" -o -name "*.html" -o -name "*.svg" -o -name "*.json" \) -size +1k -exec gzip -9 -k {} \;
 
 # Final NGINX stage
 FROM nginx:latest
