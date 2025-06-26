@@ -36,8 +36,7 @@
     "redux": "^4.0.5",
     "redux-api-middleware": "^3.2.1",
     "redux-thunk": "^2.3.0",
-    "shelljs": "^0.8.4",
-    "@openimis/fe-core": "file:.././frontend-packages/CoreModule"
+    "shelljs": "^0.8.4"
   },
   "scripts": {
     "start": "react-scripts start",
