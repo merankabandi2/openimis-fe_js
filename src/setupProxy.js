@@ -1,7 +1,7 @@
-const { createProxyMiddleware } = require('http-proxy-middleware');
+const  createProxyMiddleware  = require('http-proxy-middleware');
 const packageJson = require('../package.json');
 
-module.exports = function(app) {
+module.exports = function (app) {
   const proxyConfig = packageJson.proxies;
   if (proxyConfig === undefined &&  packageJson.proxy !== undefined){
     proxyConfig = {
