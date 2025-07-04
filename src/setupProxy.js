@@ -13,7 +13,7 @@ module.exports = function (app) {
       logLevel: 'debug',
     })
   );
-  console.log(`✅ Proxy set up for [api]: /api → ${apiTarget}`);
+  console.log(`Proxy set up for [api]: /api → ${apiTarget}`);
 
   // Now load any static proxies from package.json (like opensearch)
   const proxyConfig = packageJson.proxies;
@@ -38,7 +38,7 @@ module.exports = function (app) {
             logLevel: 'debug',
           })
         );
-        console.log(`✅ Proxy set up for [${key}]: ${base} → ${target}`);
+        console.log(`Proxy set up for [${key}]: ${base} → ${target}`);
       }
     });
   }
