@@ -3,10 +3,6 @@
   "version": "25.04+",
   "license": "AGPL-3.0-only",
   "proxies": {
-    "api": {
-      "base": "/api",
-      "target": "$BASE"
-    },
     "opensearch": {
       "base": "/opensearch",
       "target": "http://opensearch:5410"
