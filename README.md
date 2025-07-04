@@ -391,7 +391,7 @@ This frontend project uses CRACO to customize Create React App configurations wi
 ### 🔧 Requirements
 
 * Node.js (v16+ recommended)
-* Yarn (or npm)
+* Yarn
 
 ### 📦 Setup
 
