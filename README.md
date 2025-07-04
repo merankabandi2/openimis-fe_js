@@ -386,7 +386,7 @@ under `fe-core` configuration in `moduleConfiguration`. Logos can also be config
 
 ## Frontend Development Setup with CRACO and API Proxy
 
-This frontend project uses [CRACO](https://github.com/dilanx/craco) to customize Create React App configurations without ejecting. It also sets up a flexible proxy system for API routing during development.
+This frontend project uses CRACO to customize Create React App configurations without ejecting. It also sets up a flexible proxy system for API routing during development.
 
 ### 🔧 Requirements
 
