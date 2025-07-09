@@ -34,8 +34,8 @@ ENV GENERATE_SOURCEMAP=true
 ENV NODE_ENV=production
 RUN npm config set prefix /home/node/.npm-global
 RUN npm install -g yarn
-RUN yarn install
 RUN yarn  load-config
+RUN yarn install
 RUN yarn  build
 
 FROM nginx:latest
