@@ -33,10 +33,9 @@ USER node
 ENV GENERATE_SOURCEMAP=true
 ENV NODE_ENV=production
 RUN npm config set prefix /home/node/.npm-global
-RUN npm install -g yarn
-RUN yarn  load-config
-RUN yarn install
-RUN yarn  build
+RUN npm  load-config
+RUN npm install
+RUN npm  build
 
 FROM nginx:latest
 COPY --from=build-stage /app/build/ /usr/share/nginx/html
