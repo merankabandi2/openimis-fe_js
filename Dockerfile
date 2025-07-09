@@ -18,10 +18,9 @@ RUN chown node:node  /usr/local/lib/node_modules
 RUN npm config set prefix  /usr/local/lib/node_modules
 # Create and set permissions for /app
 RUN mkdir /app
-RUN chown node:node /app -R
 WORKDIR /app
 COPY ./ /app
-
+RUN chown node:node /app -R
 # Set environment variables
 ARG OPENIMIS_CONF_JSON
 ENV OPENIMIS_CONF_JSON=${OPENIMIS_CONF_JSON}
