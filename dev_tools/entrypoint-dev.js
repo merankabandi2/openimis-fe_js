@@ -97,14 +97,6 @@ function installAndLinkModules(imisJsonPath, modulesInstallPath) {
     }
 
     shell.cd(info.path);
-    try {
-      console.log(`Attempting to checkout and pull ${branch} for ${info.name}...`);
-      shell.exec(`git checkout ${branch}`, { silent: true });
-      shell.exec(`git pull`, { silent: true });
-      console.log(`Successfully checked out and pulled ${branch} for ${info.name}`);
-    } catch (error) {
-      console.warn(`Skipping git checkout/pull for ${info.name} due to local changes or error: ${error.message}`);
-    }
     const modulePath = path.join(curPath, info.path);
     prepareModuleForLocalDevelopment(modulePath, info.name, info.packageName, path.dirname(imisJsonPath));
     shell.cd(curPath);
@@ -203,7 +195,7 @@ function updatePackageInAssembly(modules, basePath, modulesInstallPath) {
     let info = extractModuleInfo(module);
     if (packageJSON.dependencies[info.packageName] !== `file:${info.path}`) {
       console.log(`Updating ${info.name} in package.json to use local path: file:${info.path}`);
-      shell.exec(`npm remove ${info.packageName}`, { silent: true });
+      shell.exec(`yarn remove ${info.packageName}`, { silent: true });
       packageJSON.dependencies[info.packageName] = `file:${info.path}`;
     } else {
       console.log(`${info.packageName} already linked to file:${info.path} in package.json`);
@@ -213,7 +205,7 @@ function updatePackageInAssembly(modules, basePath, modulesInstallPath) {
       console.log(`${info.packageName} is already linked locally, skipping npm link.`);
     } else {
       console.log(`Linking ${info.packageName} in main project...`);
-      shell.exec(`npm link "${info.packageName}"`, { silent: true });
+      shell.exec(`yarn link "${info.packageName}"`, { silent: true });
     }
   });
 

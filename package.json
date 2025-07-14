@@ -3,16 +3,12 @@
   "version": "25.04+",
   "license": "AGPL-3.0-only",
   "proxies": {
-    "api": {
-      "base": "/api",
-      "target": "http://backend:8000"
-    },
     "opensearch": {
       "base": "/opensearch",
       "target": "http://opensearch:5410"
     }
   },
-  "homepage": "/front/",
+  "homepage": "/front",
   "dependencies": {
     "@date-io/core": "^1.3.13",
     "@date-io/moment": "^1.3.13",
@@ -22,6 +18,8 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.58",
     "@material-ui/pickers": "^3.2.10",
+    "browserslist": "~4.25.1",
+    "caniuse-lite": "1.0.30001725",
     "classnames": "^2.2.6",
     "clsx": "^1.1.1",
     "http-client": "^4.3.1",
@@ -31,11 +29,11 @@
     "moment": "^2.25.3",
     "process": "^0.11.10",
     "prop-types": "^15.7.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-intl": "^6.4.4",
+    "react": "^17.0.0",
     "react-autosuggest": "^10.0.2",
+    "react-dom": "^17.0.0",
     "react-helmet": "^6.1.0",
+    "react-intl": "^6.4.4",
     "react-redux": "^7.2.0",
     "redux": "^4.0.5",
     "redux-api-middleware": "^3.2.1",
@@ -43,8 +41,7 @@
     "serve": "^14.2.4",
     "shelljs": "^0.8.4",
     "zxcvbn": "^4.4.2",
-    "browserslist":"~4.25.1",
-    "caniuse-lite": "1.0.30001725"
+    "@craco/craco": "^7.1.0"
   },
   "scripts": {
     "start": "craco start",
@@ -83,7 +80,8 @@
     "express": "^4.17.1",
     "http-proxy": "^1.18.1",
     "nodemon": "^3.1.10",
-    "@craco/craco": "^7.1.0",
-    "react-scripts": "^5.0.1"
+    "react-scripts": "^5.0.1",
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1"
   }
 }

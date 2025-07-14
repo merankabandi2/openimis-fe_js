@@ -18,10 +18,9 @@ RUN chown node:node  /usr/local/lib/node_modules
 RUN npm config set prefix  /usr/local/lib/node_modules
 # Create and set permissions for /app
 RUN mkdir /app
-RUN chown node:node /app -R
 WORKDIR /app
 COPY ./ /app
-
+RUN chown node:node /app -R
 # Set environment variables
 ARG OPENIMIS_CONF_JSON
 ENV OPENIMIS_CONF_JSON=${OPENIMIS_CONF_JSON}
@@ -34,10 +33,9 @@ USER node
 ENV GENERATE_SOURCEMAP=true
 ENV NODE_ENV=production
 RUN npm config set prefix /home/node/.npm-global
-RUN npm install -g yarn
-RUN yarn install
-RUN yarn  load-config
-RUN yarn  build
+RUN npm run load-config
+RUN npm install
+RUN npm run build
 
 FROM nginx:latest
 COPY --from=build-stage /app/build/ /usr/share/nginx/html
