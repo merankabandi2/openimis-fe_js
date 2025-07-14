@@ -116,7 +116,7 @@ function prepareModuleForLocalDevelopment(modulePath, moduleName, npmPackageName
     shell.exec(`yarn unlink ${npmPackageName}`, { silent: true });
   }
 
-  shell.exec("yarn install --include=dev");
+  shell.exec("yarn install --legacy-peer-deps --include dev");
   // shell.exec("yarn run build"); // Commented out to avoid premature builds
 
   if (isModuleLinkedGlobally(npmPackageName)) {
