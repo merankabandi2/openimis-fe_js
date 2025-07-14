@@ -1,7 +1,7 @@
 const fs = require("fs");
 const shell = require("shelljs");
 const path = require("path");
-const yargs = require("yargs");
+
 function extractNpmPackageName(packageJsonPath) {
   try {
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
@@ -21,36 +21,52 @@ function parseNpm(npmStr) {
   if (npmMatch) {
     return `openimis/openimis-${npmMatch[1]}_js`;
   }
-  return null; // Fallback if no match
+  return null;
 }
 
 function parseNpmName(module) {
-
   const npmMatch = module.npm.match(/(@openimis\/.+)@?/);
   if (npmMatch) {
     return npmMatch[1];
   }
-  return "@openimis/fe-" +module.name.replace("Module", "").toLowerCase(); // Fallback if no match
+  return "@openimis/fe-" + module.name.replace("Module", "").toLowerCase();
 }
+
 function parseNpmBranch(npmStr) {
   const gitMatch = npmStr.match(/github\.com\.+#(.+)/);
   if (gitMatch) {
     return gitMatch[1];
   }
-
-  return null; // Fallback if no match
+  return null;
 }
-function extractModuleInfo(module){
-  const modulePath = module.npm.match(/^file:/) ? module.npm.replace(/^file:/, ''): module.name;
-    return {
-      "name": module.name,
-      "npm": module.npm,
-      "path": modulePath,
-      "gitName" : parseNpm(module.npm),
-      "repoUrl" : `https://github.com/openimis/${module.name}.git`,
-      "branch" : parseNpmBranch(module.npm),
-      "packageName": parseNpmName(module)
-    };
+
+function extractModuleInfo(module) {
+  const modulePath = module.npm.match(/^file:/) ? module.npm.replace(/^file:/, '') : module.name;
+  return {
+    "name": module.name,
+    "npm": module.npm,
+    "path": modulePath,
+    "gitName": parseNpm(module.npm),
+    "repoUrl": `https://github.com/openimis/${module.name}.git`,
+    "branch": parseNpmBranch(module.npm),
+    "packageName": parseNpmName(module)
+  };
+}
+
+function isModuleLinkedGlobally(npmPackageName) {
+  const result = shell.exec(`yarn ls -g --link ${npmPackageName}`, { silent: true });
+  return result.code === 0 && result.stdout.includes(npmPackageName);
+}
+
+function isModuleLinkedLocally(npmPackageName, basePath) {
+  const packageJsonPath = path.join(basePath, "package.json");
+  try {
+    const packageJSON = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+    return packageJSON.dependencies && packageJSON.dependencies[npmPackageName]?.startsWith("file:");
+  } catch (error) {
+    console.error(`Error checking package.json for ${npmPackageName}: ${error.message}`);
+    return false;
+  }
 }
 
 function installAndLinkModules(imisJsonPath, modulesInstallPath) {
@@ -61,11 +77,11 @@ function installAndLinkModules(imisJsonPath, modulesInstallPath) {
     console.error(`Error reading openimis.json at ${imisJsonPath}: ${error.message}`);
     throw error;
   }
-  const curPath = String(shell.pwd())
+  const curPath = String(shell.pwd());
 
   imisJSON.modules.forEach((module) => {
-    let info = extractModuleInfo(module)
-    const branch = info.branch || 'develop'
+    let info = extractModuleInfo(module);
+    const branch = info.branch || 'develop';
     if (!shell.test("-d", info.path)) {
       console.log(`Module directory ${info.path} does not exist. Cloning from ${info.repoUrl}...`);
       shell.cd(modulesInstallPath);
@@ -79,20 +95,11 @@ function installAndLinkModules(imisJsonPath, modulesInstallPath) {
     } else {
       console.log(`Module directory ${info.path} exists.`);
     }
-    
+
     shell.cd(info.path);
-    try {
-      console.log(`Attempting to checkout and pull ${branch} for ${info.name}...`);
-      shell.exec(`git checkout ${branch}`, { silent: true });
-      shell.exec(`git pull`, { silent: true });
-      console.log(`Successfully checked out and pulled ${branch} for ${info.name}`);
-    } catch (error) {
-      console.warn(`Skipping git checkout/pull for ${info.name} due to local changes or error: ${error.message}`);
-    }
-    //const npmPackageName = extractNpmPackageName('package.json')
-    const modulePath = path.join(curPath,info.path);
+    const modulePath = path.join(curPath, info.path);
     prepareModuleForLocalDevelopment(modulePath, info.name, info.packageName, path.dirname(imisJsonPath));
-    shell.cd(curPath)
+    shell.cd(curPath);
   });
 
   updatePackageInAssembly(imisJSON.modules, path.dirname(imisJsonPath), modulesInstallPath);
@@ -102,10 +109,22 @@ function prepareModuleForLocalDevelopment(modulePath, moduleName, npmPackageName
   shell.cd(modulePath);
   console.log(`Preparing ${moduleName} for local development...`);
 
-  shell.exec(`npm unlink ${npmPackageName}`, { silent: true });
-  shell.exec("npm install --include dev");
-  //shell.exec("npm build");
-  shell.exec("npm link");
+  if (isModuleLinkedGlobally(npmPackageName)) {
+    console.log(`${npmPackageName} is already globally linked, skipping npm unlink.`);
+  } else {
+    console.log(`Unlinking ${npmPackageName} if previously linked...`);
+    shell.exec(`yarn unlink ${npmPackageName}`, { silent: true });
+  }
+
+  shell.exec("yarn install --include=dev");
+  // shell.exec("yarn run build"); // Commented out to avoid premature builds
+
+  if (isModuleLinkedGlobally(npmPackageName)) {
+    console.log(`${npmPackageName} is already globally linked, skipping npm link.`);
+  } else {
+    console.log(`Linking ${npmPackageName} globally...`);
+    shell.exec("yarn link", { silent: true });
+  }
 
   const modulePackageJson = path.join("package.json");
   let packageVersion;
@@ -157,7 +176,7 @@ function updateModuleInAssembly(packageVersion, modulePath, moduleName, npmPacka
     console.log(`Updated openimis.json for ${moduleName}`);
   } catch (error) {
     console.error(`Error writing openimis.json: ${error.message}`);
-    throw error;
+    
   }
 }
 
@@ -173,13 +192,20 @@ function updatePackageInAssembly(modules, basePath, modulesInstallPath) {
   }
 
   modules.forEach((module) => {
-    let info = extractModuleInfo(module)
+    let info = extractModuleInfo(module);
     if (packageJSON.dependencies[info.packageName] !== `file:${info.path}`) {
       console.log(`Updating ${info.name} in package.json to use local path: file:${info.path}`);
-      shell.exec(`npm remove ${info.packageName}`, { silent: true });
+      shell.exec(`yarn remove ${info.packageName}`, { silent: true });
       packageJSON.dependencies[info.packageName] = `file:${info.path}`;
     } else {
-      console.log(`${info.packageName} already linked to file:${info.path}`);
+      console.log(`${info.packageName} already linked to file:${info.path} in package.json`);
+    }
+
+    if (isModuleLinkedLocally(info.packageName, basePath)) {
+      console.log(`${info.packageName} is already linked locally, skipping npm link.`);
+    } else {
+      console.log(`Linking ${info.packageName} in main project...`);
+      shell.exec(`yarn link "${info.packageName}"`, { silent: true });
     }
   });
 
@@ -193,45 +219,42 @@ function updatePackageInAssembly(modules, basePath, modulesInstallPath) {
     console.error(`Error writing package.json: ${error.message}`);
     throw error;
   }
-
-  modules.forEach((module) => {
-    const npmPackageName = parseNpmName(module);
-    console.log(`Linking ${npmPackageName}`);
-    shell.exec(`npm link "${npmPackageName}"`, { silent: true });
-  });
 }
 
+function parseArgs() {
+  const args = process.argv.slice(2);
+  const parsed = {
+    config: path.join(__dirname, "..", "openimis.json"),
+    path: "../frontend-packages"
+  };
 
-function main(configPath, modulesPath) {
-  const imisJsonPath = path.resolve(configPath);
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "-c" || args[i] === "--config") {
+      if (i + 1 < args.length) {
+        parsed.config = args[i + 1];
+        i++;
+      }
+    } else if (args[i] === "-p" || args[i] === "--path") {
+      if (i + 1 < args.length) {
+        parsed.path = args[i + 1];
+        i++;
+      }
+    }
+  }
+
+  console.log(`dev entrypoint, p: ${parsed.path}, c: ${parsed.config}`);
+  return parsed;
+}
+
+function main() {
+  const { config, path: modulesPath } = parseArgs();
+  const imisJsonPath = path.resolve(config);
   const modulesInstallPath = path.resolve(modulesPath);
-  //try {
-    installAndLinkModules(imisJsonPath, modulesInstallPath);
-  // } catch (error) {
-  //   console.error(`Entrypoint failed: ${error}`);
-  //   process.exit(1);
-  // }
+  installAndLinkModules(imisJsonPath, modulesInstallPath);
 }
 
 if (require.main === module) {
-  const argv = yargs
-    .option("config", {
-      alias: "c",
-      description: "Path to openimis.json",
-      type: "string",
-      default: path.join(__dirname, "..", "openimis.json"),
-    })
-    .option("path", {
-      alias: "p",
-      description: "Path to modules installation directory",
-      type: "string",
-      default: "../frontend-packages",
-    })
-    .help()
-    .alias("help", "h")
-    .argv;
-  console.log("dev entrypoint, p: "+argv.path+", c: "+argv.config)
-  main(argv.config, argv.path);
+  main();
 }
 
 module.exports = {
@@ -239,5 +262,5 @@ module.exports = {
   prepareModuleForLocalDevelopment,
   updateModuleInAssembly,
   updatePackageInAssembly,
-  main,
+  main
 };
