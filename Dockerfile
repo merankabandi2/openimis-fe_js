@@ -18,7 +18,7 @@ USER node
 ENV GENERATE_SOURCEMAP=true
 ENV NODE_ENV=production
 RUN npm run load-config
-RUN npm install 
+RUN npm install --legacy-peer-deps
 RUN npm run build
 ### NGINX
 FROM nginx:latest

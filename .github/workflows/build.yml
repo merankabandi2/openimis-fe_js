@@ -30,7 +30,7 @@ jobs:
         run: npm run load-config
 
       - name: Install dependencies
-        run: npm install # Since we edit package.json with the openIMIS deps, we cannot use --frozen-lockfile
+        run: npm install --legacy-peer-deps # Since we edit package.json with the openIMIS deps, we cannot use --frozen-lockfile
 
       - name: Build
         run: npm run build

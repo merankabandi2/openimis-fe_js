@@ -103,7 +103,7 @@ function prepareModuleForLocalDevelopment(modulePath, moduleName, npmPackageName
   console.log(`Preparing ${moduleName} for local development...`);
 
   shell.exec(`npm unlink ${npmPackageName}`, { silent: true });
-  shell.exec("npm install --include dev");
+  shell.exec("npm install --legacy-peer-deps --include dev");
   //shell.exec("npm build");
   shell.exec("npm link");
 
