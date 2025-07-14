@@ -13,11 +13,7 @@ node ./dev_tools/entrypoint-dev.js -c /app/openimis-dev.json -p /frontend-packag
 # Update package.json
 echo "Updating package.json"
 node ./modules-config.js openimis-dev.json
-
-# Install application dependencies
-echo "Installing application"
-yarn install
-
-# Start the application
+echo "Install application"
+npm install --legacy-peer-deps
 echo "Application has been updated!, will start now"
-yarn dev
+npm start  openimis-dev.json

@@ -34,7 +34,7 @@ ENV GENERATE_SOURCEMAP=true
 ENV NODE_ENV=production
 RUN npm config set prefix /home/node/.npm-global
 RUN npm run load-config
-RUN npm install
+RUN npm install  --include=dev
 RUN npm run build
 
 FROM nginx:latest
