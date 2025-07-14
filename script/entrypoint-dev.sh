@@ -3,7 +3,7 @@ cd /app
 echo "Prepare dev setup"
 
 
-
+yarn install shelljs
 # Install required global dependencies
 echo "Installing global dependencies"
 # Run the entrypoint-dev.js script
@@ -14,6 +14,6 @@ node ./dev_tools/entrypoint-dev.js -c /app/openimis-dev.json -p /frontend-packag
 echo "Updating package.json"
 node ./modules-config.js openimis-dev.json
 echo "Install application"
-yarn install
+yarn install --legacy-peer-deps --include=dev
 echo "Application has been updated!, will start now"
 yarn dev

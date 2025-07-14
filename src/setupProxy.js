@@ -3,25 +3,13 @@ const packageJson = require('../package.json');
 
 module.exports = function (app) {
   // Add dynamic API proxy first
-  const apiTarget = process.env.API_PROXY_TARGET || 'http://localhost:8000';
-  app.use(
-    '/api',
-    createProxyMiddleware({
-      target: apiTarget,
-      changeOrigin: true,
-      pathRewrite: { '^/api': '/api' },
-      logLevel: 'debug',
-    })
-  );
-  console.log(`Proxy set up for [api]: /api → ${apiTarget}`);
+
 
   // Now load any static proxies from package.json (like opensearch)
   const proxyConfig = packageJson.proxies;
   if (proxyConfig && typeof proxyConfig === 'object') {
     Object.entries(proxyConfig).forEach(([key, value]) => {
       // Skip 'api' – we already handled it above
-      if (key === 'api') return;
-
       const base = value.base;
       const target = value.target;
       const newBase = value.newBase ?? value.base;

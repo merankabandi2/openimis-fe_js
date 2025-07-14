@@ -28,18 +28,5 @@ module.exports = {
     },
   },
   devServer: {
-    // Proxy API requests starting with /api to backend on localhost:8000
-    proxy: {
-      "/api": {
-        target: "http://localhost:8000",
-        pathRewrite: { "^/api": "" },
-        changeOrigin: true,
-        logLevel: 'debug' // This logs proxy activity
-      },
-    },
-    // Serve the SPA with base /front/ and fallback on /front/index.html for client routing
-    historyApiFallback: {
-      index: "/front/index.html",
-    },
   },
 };
