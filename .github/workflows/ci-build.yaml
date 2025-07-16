@@ -21,14 +21,15 @@ jobs:
       - name: Check package.json
         run: |
             npm install -g npm@latest
-            npm install ajv
             npm run check-package
 
       - name: Prepare openIMIS Dependencies
         run: npm run load-config
 
       - name: Install dependencies
-        run: npm install --include=dev --legacy-peer-deps
+        run: |
+            npm install  ajv --legacy-peer-deps
+            npm install  --include=dev --legacy-peer-deps
 
       - name: Build
         run: npm run build
