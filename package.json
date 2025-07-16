@@ -44,7 +44,8 @@
     "serve": "^14.2.4",
     "shelljs": "^0.8.4",
     "zxcvbn": "^4.4.2",
-    "@craco/craco": "^7.1.0"
+    "@craco/craco": "^7.1.0",
+    "ajv":"8.17.1"
   },
   "scripts": {
     "start": "craco start",
