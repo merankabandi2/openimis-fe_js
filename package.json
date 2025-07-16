@@ -49,6 +49,7 @@
   "scripts": {
     "start": "craco start",
     "build": "craco build",
+    "build-ci": "react-scripts build",
     "dev": "nodemon",
     "load-config": "node ./openimis-config.js",
     "postinstall": "node script/postinstall.js",
