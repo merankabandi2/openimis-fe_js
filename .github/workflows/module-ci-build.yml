@@ -81,4 +81,3 @@ jobs:
       - name: Build
         working-directory: ./openimis-fe
         run: npm run build
-```
