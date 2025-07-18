@@ -1,0 +1,84 @@
+name: Automated CI Build
+# This workflow runs automatically for every commit on GitHub to check syntax and build the frontend.
+on:
+  workflow_call:
+    inputs:
+      branchName:
+        required: false
+        type: string
+        default: 'develop'
+
+jobs:
+  build_frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Pull openIMIS Frontend
+        run: |
+          # Determine the target branch
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            TARGET_BRANCH="${{ github.event.pull_request.base.ref }}"
+          else
+            TARGET_BRANCH="${{ github.event.ref }}"
+            TARGET_BRANCH=${TARGET_BRANCH#refs/heads/}
+          fi
+      
+          # Use 'develop' as fallback if TARGET_BRANCH is empty or not a release branch
+          if [[ -z "$TARGET_BRANCH" ]]; then
+            TARGET_BRANCH="develop"
+          fi
+      
+          echo "Target branch: $TARGET_BRANCH"
+      
+          # Clone the repository
+          rm -rf ./openimis-fe
+          git clone --depth=1 --branch=$TARGET_BRANCH https://github.com/openimis/openimis-fe_js.git ./openimis-fe || {
+            echo "Failed to clone $TARGET_BRANCH, falling back to develop"
+            git clone --depth=1 --branch=develop https://github.com/openimis/openimis-fe_js.git ./openimis-fe
+          }
+      
+          # Verify the cloned branch
+          cd ./openimis-fe
+          CLONED_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          echo "Cloned branch: $CLONED_BRANCH"
+
+      - name: Copy Current branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: './current-module'
+
+      - name: Update the configuration
+        working-directory: ./openimis-fe
+        run: |
+          sudo apt-get update
+          sudo apt-get install jq
+
+          export MODULE_NAME="$(echo $GITHUB_REPOSITORY | sed 's#^openimis/openimis-fe-\(.*\)_js$#\1#')"
+          
+          echo "MODULE_NAME=$MODULE_NAME" >> $GITHUB_ENV
+          
+          # Add or replace MODULE_NAME module in openimis.json (local version)
+          jq --arg name "$MODULE_NAME" 'if [.modules[].name == $name] | max then (.modules[] | select(.name == $name) | .npm) = "file:../current-module" else .modules |= . + [{name: $name, npm: "file:../current-module"}] end' openimis.json > temp.json && mv temp.json openimis.json
+          cat openimis.json
+
+      - name: Check package.json
+        working-directory: ./openimis-fe
+        run: npm run check-package
+
+      - name: Prepare openIMIS Dependencies
+        working-directory: ./openimis-fe
+        run: npm run load-config
+
+      - name: Install dependencies
+        working-directory: ./openimis-fe
+        run: npm install --include=dev
+
+      - name: Build
+        working-directory: ./openimis-fe
+        run: npm run build
+```
