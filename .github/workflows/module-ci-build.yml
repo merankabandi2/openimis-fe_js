@@ -19,33 +19,43 @@ jobs:
 
       - name: Pull openIMIS Frontend
         run: |
-          # Determine the target branch
+          # Determine the source and target branches
           if [ "${{ github.event_name }}" == "pull_request" ]; then
+            SOURCE_BRANCH="${{ github.event.pull_request.head.ref }}"
             TARGET_BRANCH="${{ github.event.pull_request.base.ref }}"
           else
-            TARGET_BRANCH="${{ github.event.ref }}"
-            TARGET_BRANCH=${TARGET_BRANCH#refs/heads/}
+            SOURCE_BRANCH="${{ github.ref_name }}"
+            TARGET_BRANCH="develop"
           fi
       
-          # Use 'develop' as fallback if TARGET_BRANCH is empty or not a release branch
+          # Use 'develop' as fallback if SOURCE_BRANCH or TARGET_BRANCH is empty
+          if [[ -z "$SOURCE_BRANCH" ]]; then
+            SOURCE_BRANCH="develop"
+          fi
           if [[ -z "$TARGET_BRANCH" ]]; then
             TARGET_BRANCH="develop"
           fi
       
+          echo "Source branch: $SOURCE_BRANCH"
           echo "Target branch: $TARGET_BRANCH"
       
-          # Clone the repository
+          # Clone the repository with source branch, fall back to target branch if source doesn't exist
           rm -rf ./openimis-fe
-          git clone --depth=1 --branch=$TARGET_BRANCH https://github.com/openimis/openimis-fe_js.git ./openimis-fe || {
-            echo "Failed to clone $TARGET_BRANCH, falling back to develop"
-            git clone --depth=1 --branch=develop https://github.com/openimis/openimis-fe_js.git ./openimis-fe
-          }
+          if git ls-remote --heads https://github.com/openimis/openimis-fe_js.git "$SOURCE_BRANCH" | grep -q "$SOURCE_BRANCH"; then
+            echo "Cloning source branch: $SOURCE_BRANCH"
+            git clone --depth=1 --branch="$SOURCE_BRANCH" https://github.com/openimis/openimis-fe_js.git ./openimis-fe
+          else
+            echo "Source branch $SOURCE_BRANCH not found, falling back to $TARGET_BRANCH"
+            git clone --depth=1 --branch="$TARGET_BRANCH" https://github.com/openimis/openimis-fe_js.git ./openimis-fe || {
+              echo "Failed to clone $TARGET_BRANCH, falling back to develop"
+              git clone --depth=1 --branch=develop https://github.com/openimis/openimis-fe_js.git ./openimis-fe
+            }
+          fi
       
           # Verify the cloned branch
           cd ./openimis-fe
           CLONED_BRANCH=$(git rev-parse --abbrev-ref HEAD)
           echo "Cloned branch: $CLONED_BRANCH"
-
       - name: Copy Current branch
         uses: actions/checkout@v4
         with:
