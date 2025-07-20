@@ -77,7 +77,10 @@ jobs:
 
       - name: Check package.json
         working-directory: ./openimis-fe
-        run: npm run check-package
+        run: |
+          npm run check-package
+          # install without openimis modules
+          run: npm install --include=dev --legacy-peer-deps
 
       - name: Prepare openIMIS Dependencies
         working-directory: ./openimis-fe
