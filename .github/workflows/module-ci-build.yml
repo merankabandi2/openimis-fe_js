@@ -63,7 +63,7 @@ jobs:
           echo "MODULE_NAME=$MODULE_NAME" >> $GITHUB_ENV
           
           # Add or replace MODULE_NAME module in openimis.json (local version)
-          jq --arg name "$SHORT_NAME" --arg npm_val "$PACKAGE_NAME@file:../current-module" 'if [.modules[].name == $name] | max then (.modules[] | select(.name == $name) | .npm) = $npm_val else .modules |= . + [{name: $name, npm: $npm_val}] end' openimis.json > temp.json && mv temp.json openimis.json
+          jq --arg name "$MODULE_NAME" --arg npm_val "$PACKAGE_NAME@file:../current-module" 'if [.modules[].name == $name] | max then (.modules[] | select(.name == $name) | .npm) = $npm_val else .modules |= . + [{name: $name, npm: $npm_val}] end' openimis.json > temp.json && mv temp.json openimis.json
 
       - name: Check package.json
         working-directory: ./openimis-fe
