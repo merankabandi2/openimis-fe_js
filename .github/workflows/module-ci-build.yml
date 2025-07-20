@@ -57,13 +57,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install jq
-
+          PACKAGE_NAME=$(jq -r '.name' ../current-module/package.json)
+          echo "PACKAGE_NAME=$PACKAGE_NAME" >> $GITHUB_ENV
           export MODULE_NAME=$(grep -oP 'export\s+(?:const)?\s+\K\w+Module(?=\s+=)' ../current-module/src/index.js)
           echo "MODULE_NAME=$MODULE_NAME" >> $GITHUB_ENV
           
           # Add or replace MODULE_NAME module in openimis.json (local version)
-          jq --arg name "$MODULE_NAME" 'if [.modules[].name == $name] | max then (.modules[] | select(.name == $name) | .npm) = "file:../current-module" else .modules |= . + [{name: $name, npm: "file:../current-module"}] end' openimis.json > temp.json && mv temp.json openimis.json
-          cat openimis.json
+          jq --arg name "$SHORT_NAME" --arg npm_val "$PACKAGE_NAME@file:../current-module" 'if [.modules[].name == $name] | max then (.modules[] | select(.name == $name) | .npm) = $npm_val else .modules |= . + [{name: $name, npm: $npm_val}] end' openimis.json > temp.json && mv temp.json openimis.json
 
       - name: Check package.json
         working-directory: ./openimis-fe
