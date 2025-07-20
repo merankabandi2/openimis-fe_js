@@ -75,7 +75,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./openimis-fe
-        run: npm install --include=dev
+        run: npm install --include=dev --legacy-peer-deps
 
       - name: Build
         working-directory: ./openimis-fe
