@@ -58,7 +58,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install jq
 
-          export MODULE_NAME=$(grep -oP 'export\s+(?:const)?\s+\K\w+Module(?=\s+=)' ../current-module/src/index.jsx)
+          export MODULE_NAME=$(grep -oP 'export\s+(?:const)?\s+\K\w+Module(?=\s+=)' ../current-module/src/index.js)
           echo "MODULE_NAME=$MODULE_NAME" >> $GITHUB_ENV
           
           # Add or replace MODULE_NAME module in openimis.json (local version)
