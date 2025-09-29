@@ -1,5 +1,6 @@
 import "react-app-polyfill/ie11";
 import "react-app-polyfill/stable";
+import * as Sentry from "@sentry/browser";
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 import { MuiThemeProvider, LinearProgress } from "@material-ui/core";
@@ -18,12 +19,20 @@ import messages_ref from "./translations/ref.json";
 import "./index.css";
 import "./rc-cascader.css";
 
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  debug: true,
+  integrations: [new Sentry.BrowserTracing()],
+  tracesSampleRate: 1.0,
+});
 
 const loadConfiguration = async () => {
   const response = await fetch(`${baseApiUrl}/graphql`, {
     method: "post",
     headers: apiHeaders(),
-    body: JSON.stringify({ "query": "{ moduleConfigurations { module, config, controls{ field, usage } } }" }),
+    body: JSON.stringify({
+      query: "{ moduleConfigurations { module, config, controls{ field, usage } } }",
+    }),
   });
   if (!response.ok) {
     throw response;
@@ -43,7 +52,11 @@ const loadConfiguration = async () => {
 };
 
 const AppContainer = () => {
-  const [appState, setAppState] = React.useState({ isLoading: true, config: undefined, error: null });
+  const [appState, setAppState] = React.useState({
+    isLoading: true,
+    config: undefined,
+    error: null,
+  });
   const localesManager = new LocalesManager();
 
   useEffect(() => {
@@ -65,7 +78,8 @@ const AppContainer = () => {
   const themeColor = appState?.config?.["fe-core"]?.theme;
   const dynamicTheme = createAppTheme(themeColor || {});
   const logo = getConfiguredLogo(appState.config);
-  const disableTextLogo = appState?.config?.["fe-core"]?.logo?.disableTextLogo || false
+  const disableTextLogo =
+    appState?.config?.["fe-core"]?.logo?.disableTextLogo || false;
 
   if (appState.isLoading) {
     return (
@@ -84,13 +98,15 @@ const AppContainer = () => {
     );
   } else {
     const modulesManager = new ModulesManager(appState.config);
-    const reducers = modulesManager.getContribs("reducers").reduce((reds, red) => {
-      reds[red.key] = red.reducer;
-      return reds;
-    }, []);
+    const reducers = modulesManager
+      .getContribs("reducers")
+      .reduce((reds, red) => {
+        reds[red.key] = red.reducer;
+        return reds;
+      }, []);
 
     const middlewares = modulesManager.getContribs("middlewares");
-    
+
     return (
       <MuiThemeProvider theme={dynamicTheme}>
         <Provider store={store(reducers, middlewares)}>
@@ -111,5 +127,14 @@ const AppContainer = () => {
   }
 };
 
-ReactDOM.render(<AppContainer />, document.getElementById("root"));
+ReactDOM.render(
+  <Sentry.ErrorBoundary
+    fallback={<FatalError error={{ code: 500, message: "Une erreur inattendue est survenue" }} />}
+    showDialog
+    >
+    <AppContainer />
+  </Sentry.ErrorBoundary>,
+  document.getElementById("root"),
+);
+
 serviceWorker.register();
