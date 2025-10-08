@@ -17,9 +17,10 @@ import { App, FatalError, baseApiUrl, apiHeaders } from "@openimis/fe-core";
 import getConfiguredLogo from "./helpers/logo";
 import messages_ref from "./translations/ref.json";
 import "./index.css";
+import "./rc-cascader.css";
 
 Sentry.init({ 
-  dsn: process.env.SENTRY_DSN, 
+  dsn: process.env.SENTRY_DSN, //set your sentry dsn here
   debug: false,
   integrations: [
     Sentry.browserTracingIntegration(),
