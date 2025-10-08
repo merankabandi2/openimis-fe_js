@@ -1,6 +1,6 @@
 import "react-app-polyfill/ie11";
 import "react-app-polyfill/stable";
-import * as Sentry from "@sentry/browser";
+import * as Sentry from "@sentry/react";
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 import { MuiThemeProvider, LinearProgress } from "@material-ui/core";
@@ -17,12 +17,13 @@ import { App, FatalError, baseApiUrl, apiHeaders } from "@openimis/fe-core";
 import getConfiguredLogo from "./helpers/logo";
 import messages_ref from "./translations/ref.json";
 import "./index.css";
-import "./rc-cascader.css";
 
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  debug: true,
-  integrations: [new Sentry.BrowserTracing()],
+Sentry.init({ 
+  dsn: process.env.SENTRY_DSN, 
+  debug: false,
+  integrations: [
+    Sentry.browserTracingIntegration(),
+  ],
   tracesSampleRate: 1.0,
 });
 
@@ -30,9 +31,7 @@ const loadConfiguration = async () => {
   const response = await fetch(`${baseApiUrl}/graphql`, {
     method: "post",
     headers: apiHeaders(),
-    body: JSON.stringify({
-      query: "{ moduleConfigurations { module, config, controls{ field, usage } } }",
-    }),
+    body: JSON.stringify({ "query": "{ moduleConfigurations { module, config, controls{ field, usage } } }" }),
   });
   if (!response.ok) {
     throw response;
@@ -52,34 +51,33 @@ const loadConfiguration = async () => {
 };
 
 const AppContainer = () => {
-  const [appState, setAppState] = React.useState({
-    isLoading: true,
-    config: undefined,
-    error: null,
-  });
+  const [appState, setAppState] = React.useState({ isLoading: true, config: undefined, error: null });
   const localesManager = new LocalesManager();
 
   useEffect(() => {
     loadConfiguration().then(
-      (config) =>
+      (config) => {
         setAppState({
           error: null,
           isLoading: false,
           config,
-        }),
-      (error) =>
+        });
+        Sentry.captureMessage("Configuration loaded successfully and Sentry initialized");
+      },
+      (error) => {
+        Sentry.captureException(error);
         setAppState({
           error,
           isLoading: false,
-        }),
+        });
+      }
     );
-  }, []);
+  }, []);  
 
   const themeColor = appState?.config?.["fe-core"]?.theme;
   const dynamicTheme = createAppTheme(themeColor || {});
   const logo = getConfiguredLogo(appState.config);
-  const disableTextLogo =
-    appState?.config?.["fe-core"]?.logo?.disableTextLogo || false;
+  const disableTextLogo = appState?.config?.["fe-core"]?.logo?.disableTextLogo || false;
 
   if (appState.isLoading) {
     return (
@@ -98,15 +96,13 @@ const AppContainer = () => {
     );
   } else {
     const modulesManager = new ModulesManager(appState.config);
-    const reducers = modulesManager
-      .getContribs("reducers")
-      .reduce((reds, red) => {
-        reds[red.key] = red.reducer;
-        return reds;
-      }, []);
+    const reducers = modulesManager.getContribs("reducers").reduce((reds, red) => {
+      reds[red.key] = red.reducer;
+      return reds;
+    }, []);
 
     const middlewares = modulesManager.getContribs("middlewares");
-
+    
     return (
       <MuiThemeProvider theme={dynamicTheme}>
         <Provider store={store(reducers, middlewares)}>
@@ -129,12 +125,12 @@ const AppContainer = () => {
 
 ReactDOM.render(
   <Sentry.ErrorBoundary
-    fallback={<FatalError error={{ code: 500, message: "Une erreur inattendue est survenue" }} />}
+    fallback={<FatalError error={{ code: 500, message: "An unexpected error occurred" }} />}
     showDialog
-    >
+  >
     <AppContainer />
   </Sentry.ErrorBoundary>,
-  document.getElementById("root"),
+  document.getElementById("root")
 );
 
 serviceWorker.register();
