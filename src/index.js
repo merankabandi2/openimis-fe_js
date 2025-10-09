@@ -35,6 +35,7 @@ const loadConfiguration = async () => {
     body: JSON.stringify({ "query": "{ moduleConfigurations { module, config, controls{ field, usage } } }" }),
   });
   if (!response.ok) {
+    Sentry.captureException(new Error(`${response.status} ${response.statusText}`));
     throw response;
   } else {
     const { data } = await response.json();
@@ -63,10 +64,9 @@ const AppContainer = () => {
           isLoading: false,
           config,
         });
-        Sentry.captureMessage("Configuration loaded successfully and Sentry initialized");
       },
       (error) => {
-        Sentry.captureException(error);
+        Sentry.captureException(new Error("Failed to load configuration"));
         setAppState({
           error,
           isLoading: false,
