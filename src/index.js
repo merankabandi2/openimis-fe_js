@@ -20,7 +20,7 @@ import "./index.css";
 import "./rc-cascader.css";
 
 Sentry.init({ 
-  dsn: process.env.SENTRY_DSN, //set your sentry dsn here
+  dsn: process.env.REACT_APP_SENTRY_DSN,
   debug: false,
   integrations: [
     Sentry.browserTracingIntegration(),
