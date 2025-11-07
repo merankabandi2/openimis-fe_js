@@ -458,7 +458,4 @@ webpackConfig.output.publicPath = '/front/';
 * Set `PUBLIC_URL=/front` if needed to ensure assets load correctly.
 
 ### Using Sentry with GlitchTip
-* make sure you have installed sentry in your project with 'yarn add sentry-react'
-* open https://glitchtip.s2.openimis.org in your browser, create an account an set up your organization
-* add new project and copy the DSN of your project
-* init sentry in the index file of fe_js with your project DSN;
+* set your sentry/glitchtip dsn in the .env file to capture errors and exceptions in your React app
