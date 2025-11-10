@@ -1,34 +1,36 @@
-name: Publish Node.js Package
+name: Publish Node.js Package to Registry
 
 on:
-  release:
-    types: [published]
   workflow_call:
     inputs:
-      node_version:
-        description: 'Node version to use'
-        required: true
-        type: string
-        default: '20'
       registry_url:
         description: 'NPM registry URL'
         required: true
         type: string
         default: 'https://registry.npmjs.org/'
+      node_version:
+        description: 'Node version to use'
+        required: true
+        type: string
+        default: '20'
       scope:
-        description: 'Scope for npm package'
+        description: 'Scope for npm package (e.g., openimis for @openimis/*)'
         required: false
         type: string
         default: 'openimis'
       access:
-        description: 'Access level for npm package'
+        description: 'Access level for npm package (e.g., public)'
         required: false
         type: string
         default: 'public'
       tag:
-        description: 'Dist-tag for the npm publish (v1.2 ...)'
-        required: true
+        description: 'Optional tag for the published package (e.g., latest, beta)'
+        required: false
         type: string
+    secrets:
+      NPM_TOKEN:
+        description: 'NPM authentication token'
+        required: true
 
 jobs:
   publish:
