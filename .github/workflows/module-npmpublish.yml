@@ -31,31 +31,44 @@ on:
         type: string
 
 jobs:
-  # -------------------------------------------------
-  # Publish to npmjs.com
-  # -------------------------------------------------
-  npmjs:
-    uses: openimis/openimis-fe_js/.github/workflows/module-npmpublish.yml@develop
-    with:
-      registry_url: ${{ inputs.registry_url || 'https://registry.npmjs.org/' }}
-      node_version: ${{ inputs.node_version || '20' }}
-      scope:        ${{ inputs.scope        || 'openimis' }}
-      access:       ${{ inputs.access       || 'public' }}
-      tag:          ${{ inputs.tag          || 'latest' }}
-    secrets:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Needed for git fetch --tags
 
-  # -------------------------------------------------
-  # Publish to GitHub Packages (GPR)
-  # -------------------------------------------------
-  gpr:
-    needs: npmjs                     # optional – wait for npmjs to finish
-    uses: openimis/openimis-fe_js/.github/workflows/module-npmpublish.yml@develop
-    with:
-      registry_url: 'https://npm.pkg.github.com/'
-      node_version: ${{ inputs.node_version || '20' }}
-      scope:        ${{ inputs.scope        || 'openimis' }}
-      access:       ${{ inputs.access       || 'public' }}
-      tag:          ${{ inputs.tag          || 'latest' }}
-    secrets:
-      NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node_version }}
+          registry-url: ${{ inputs.registry_url }}
+          scope: ${{ inputs.scope }}
+
+      - name: Update version with TAG
+        run: |
+          TAG_NAME="${{ inputs.tag }}"
+          if [ -z "$TAG_NAME" ]; then
+            if [ "${{ github.event_name }}" == "release" ]; then
+              TAG_NAME="${{ github.event.release.tag_name }}"
+            else
+              git fetch --tags
+              TAG_NAME=$(git tag --sort=-version:refname | head -n 1)
+            fi
+          fi
+          echo "tag to use $TAG_NAME"
+          jq --arg a "$TAG_NAME" '.version = $a' package.json > temp.json && mv temp.json package.json
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Publish package
+        run: |
+          if [ -n "${{ inputs.tag }}" ]; then
+            yarn publish --tag ${{ inputs.tag }} --access ${{ inputs.access }} --no-git-tag-version
+          else
+            yarn publish --access ${{ inputs.access }} --no-git-tag-version
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
