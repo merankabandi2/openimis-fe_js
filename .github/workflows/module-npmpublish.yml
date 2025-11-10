@@ -3,27 +3,32 @@ name: Publish Node.js Package
 on:
   release:
     types: [published]
-  workflow_dispatch:
+  workflow_call:
     inputs:
       node_version:
         description: 'Node version to use'
         required: true
+        type: string
         default: '20'
       registry_url:
         description: 'NPM registry URL'
         required: true
+        type: string
         default: 'https://registry.npmjs.org/'
       scope:
         description: 'Scope for npm package'
         required: false
+        type: string
         default: 'openimis'
       access:
         description: 'Access level for npm package'
         required: false
+        type: string
         default: 'public'
       tag:
         description: 'Dist-tag for the npm publish (v1.2 ...)'
         required: true
+        type: string
 
 jobs:
   # -------------------------------------------------
