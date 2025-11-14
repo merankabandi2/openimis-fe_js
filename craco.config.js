@@ -24,6 +24,17 @@ module.exports = {
         })
       );
 
+      webpackConfig.ignoreWarnings = [
+        {
+          module: /@formatjs\/fast-memoize/,
+          message: /Failed to parse source map/,
+        },
+        {
+          module: /react-double-scrollbar/,
+          message: /Failed to parse source map/,
+        },
+      ];
+
       return webpackConfig;
     },
   },
