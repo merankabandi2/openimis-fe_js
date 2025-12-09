@@ -28,12 +28,14 @@ ENV NODE_ENV=development
 USER node
 ENTRYPOINT ["/bin/bash", "/app/script/entrypoint-dev.sh"]
 
-FROM dev-stage AS build-stage
+FROM dev-stage AS base
 USER node
 ENV GENERATE_SOURCEMAP=true
 ENV NODE_ENV=production
 RUN npm config set prefix /home/node/.npm-global
 RUN npm install -g npm@latest
+
+FROM base AS build-stage
 RUN npm run load-config
 RUN npm install  --include=dev --legacy-peer-deps
 RUN npm run build
