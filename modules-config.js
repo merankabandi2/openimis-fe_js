@@ -48,17 +48,17 @@ export const packages = [
 export function loadModules(cfg = {}) {
   const loadedModules = [];
 ${modules
-.map(({ name, logicalName, moduleName }) => {
-return `
+  .map(({ name, logicalName, moduleName }) => {
+    return `
   try {
-    loadedModules.push(require("${moduleName}").${name ?? "default"}(cfg["${logicalName}"] || {}));
+    loadedModules.push(require("${moduleName}").${name || "default"}(cfg["${logicalName}"] || {}));
   } catch (error) {
     alert(\`Failed to load module "${moduleName}". More details can be found in the developer console. Look for: \${error}\`);
     console.error(error);
   }
 `;
-})
-.join("")}
+  })
+  .join("")}
   return loadedModules;
 }
 `);
@@ -66,6 +66,14 @@ return `
   stream.end();
 }
 
+function parseNpmName(module) {
+
+  const npmMatch = module.npm.match(/(@openimis\/.+)@?/);
+  if (npmMatch) {
+    return npmMatch[1];
+  }
+  return "@openimis/fe-" +module.name.replace("Module", "").toLowerCase(); // Fallback if no match
+}
 function main() {
   /*
   Load openIMIS configuration. Configuration is taken from args if provided or from the environment variable
@@ -93,12 +101,9 @@ function main() {
   for (const module of config.modules) {
     const { npm, name, logicalName } = module;
     // Find version number
-    const moduleName = npm.substring(0, npm.lastIndexOf("@"));
-    if (npm.lastIndexOf("@") <= 0) {
-      throw new Error(`  Module ${moduleName} has no version set.`);
-    }
-    const version = npm.substring(npm.lastIndexOf("@") + 1);
-    console.log(`  added "${moduleName}": ${version}`);
+    const moduleName = parseNpmName(module)
+    const version = npm.lastIndexOf("@") <= 0 ? npm.substring(npm.lastIndexOf("@") + 1) : null;
+         console.log(`  added "${moduleName}": ${version}`);
     pkg.dependencies[moduleName] = version;
     modules.push({
       moduleName,
@@ -109,6 +114,8 @@ function main() {
     });
   }
   processModules(modules);
+    console.log("Save package.json");
+  fs.writeFileSync("./package.json", JSON.stringify(pkg, null, 2), { encoding: "utf-8", flag: "w" });
 }
 
 main();

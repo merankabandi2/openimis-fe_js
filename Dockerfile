@@ -1,56 +1,60 @@
-# Base stage with OS and system dependencies
-FROM node:16 AS base-stage
+FROM node:20 AS dev-stage
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y nano openssl software-properties-common
+
+# Generate self-signed SSL certificate
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /etc/ssl/private/privkey.pem \
+    -out /etc/ssl/private/fullchain.pem \
+    -subj "/C=DE/ST=_/L=_/O=_/OU=_/CN=localhost"
+
+# Set up global npm directory
+RUN mkdir -p /home/node/.npm-global 
+RUN chown node:node /home/node/.npm-global 
+RUN npm config set prefix /home/node/.npm-global 
+RUN mkdir -p  /usr/local/lib/node_modules
+RUN chown node:node  /usr/local/lib/node_modules
+RUN npm config set prefix  /usr/local/lib/node_modules
+# Create and set permissions for /app
 RUN mkdir /app
 WORKDIR /app
-RUN npm install --global serve
-RUN apt-get update && apt-get install -y nano openssl software-properties-common
-RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/privkey.pem -out /etc/ssl/private/fullchain.pem -subj "/C=DE/ST=_/L=_/O=_/OU=_/CN=localhost"
-RUN chown node /app -R
-
-# Dependencies stage - this will be the part that can be selectively rebuilt
-FROM base-stage AS dependencies-stage
-USER node
-COPY --chown=node:node package*.json ./
-# Add a cache-busting argument that can be used to force a rebuild of just this layer
-ARG CACHE_BUST=1
-RUN echo "Cache bust: ${CACHE_BUST}"
-
-# Build stage
-FROM dependencies-stage AS build-stage
+COPY ./ /app
+RUN chown node:node /app -R
+# Set environment variables
 ARG OPENIMIS_CONF_JSON
 ENV OPENIMIS_CONF_JSON=${OPENIMIS_CONF_JSON}
+ENV NODE_ENV=development
+USER node
+ENTRYPOINT ["/bin/bash", "/app/script/entrypoint-dev.sh"]
+
+FROM dev-stage AS base
+USER node
+ENV GENERATE_SOURCEMAP=true
 ENV NODE_ENV=production
-COPY --chown=node:node ./ ./
+RUN npm config set prefix /home/node/.npm-global
+RUN npm install -g npm@latest
+
+FROM base AS build-stage
 RUN npm run load-config
-# Configure npm for better network handling and install
-RUN npm config set fetch-retry-mintimeout 20000 && \
-    npm config set fetch-retry-maxtimeout 120000 && \
-    npm config set fetch-timeout 300000 && \
-    npm config set audit false && \
-    npm config set fund false && \
-    npm cache clean --force && \
-    npm install --verbose || \
-    (echo "First install attempt failed, retrying..." && sleep 10 && npm install --verbose) 
+RUN npm install  --include=dev --legacy-peer-deps
 RUN npm run build
 
-# Compress static files
-RUN find ./ -type f \( -name "*.js" -o -name "*.css" -o -name "*.html" -o -name "*.svg" -o -name "*.json" \) -size +1k -exec gzip -9 -k {} \;
-
-# Final NGINX stage
 FROM nginx:latest
-#COPY APP
 COPY --from=build-stage /app/build/ /usr/share/nginx/html
-#COPY DEFAULT CERTS
 COPY --from=build-stage /etc/ssl/private/ /etc/nginx/ssl/live/host
 COPY ./conf /conf
-COPY script/entrypoint.sh /script/entrypoint.sh
+COPY ./script/entrypoint.sh /script/entrypoint.sh
+RUN openssl dhparam -out /etc/nginx/dhparam.pem 2048
 RUN chmod a+x /script/entrypoint.sh
 WORKDIR /script
 ENV DATA_UPLOAD_MAX_MEMORY_SIZE=12582912
 ENV NEW_OPENIMIS_HOST="localhost"
 ENV PUBLIC_URL="front"
 ENV REACT_APP_API_URL="api"
+ENV REACT_APP_SENTRY_DSN=""
 ENV ROOT_MOBILEAPI="rest"
 ENV FORCE_RELOAD=""
-ENTRYPOINT ["/bin/bash","/script/entrypoint.sh"]
+ENV OPENSEARCH_PROXY_ROOT="opensearch"
+ENTRYPOINT ["/bin/bash", "/script/entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]

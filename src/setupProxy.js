@@ -1,23 +1,33 @@
-const { createProxyMiddleware } = require("http-proxy-middleware");
-const pkg = require("../package.json");
+const { createProxyMiddleware } = require('http-proxy-middleware');
+const packageJson = require('../package.json');
 
 module.exports = function (app) {
-  let headers = {};
-  if (process.env.REMOTE_USER) {
-    headers["Remote-User"] = process.env.REMOTE_USER;
-  }
+  // Add dynamic API proxy first
 
-  let baseApiUrl = process.env.REACT_APP_API_URL ?? '/api';
-  if (baseApiUrl.indexOf('/') !== 0) {
-    baseApiUrl = `/${baseApiUrl}`;
-  }
 
-  app.use(
-    baseApiUrl,
-    createProxyMiddleware({
-      target: pkg.proxy,
-      changeOrigin: true,
-      headers: headers
-    }),
-  );
+  // Now load any static proxies from package.json (like opensearch)
+  const proxyConfig = packageJson.proxies;
+  if (proxyConfig && typeof proxyConfig === 'object') {
+    Object.entries(proxyConfig).forEach(([key, value]) => {
+      // Skip 'api' – we already handled it above
+      const base = value.base;
+      const target = value.target;
+      const newBase = value.newBase ?? value.base;
+
+      if (base && target) {
+        app.use(
+          base,
+          createProxyMiddleware({
+            target,
+            changeOrigin: true,
+            pathRewrite: {
+              [`^${base}`]: `${newBase}`,
+            },
+            logLevel: 'debug',
+          })
+        );
+        console.log(`Proxy set up for [${key}]: ${base} → ${target}`);
+      }
+    });
+  }
 };

@@ -1,32 +1,31 @@
 import "react-app-polyfill/ie11";
 import "react-app-polyfill/stable";
+import * as Sentry from "@sentry/react";
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
-import { MuiThemeProvider, LinearProgress, Typography } from "@material-ui/core";
+import { MuiThemeProvider, LinearProgress } from "@material-ui/core";
 import { Provider } from "react-redux";
 import MomentUtils from "@date-io/moment";
 import { MuiPickersUtilsProvider } from "@material-ui/pickers";
-import { QueryClient, QueryClientProvider } from "react-query";
 import * as serviceWorker from "./serviceWorker";
-import theme from "./helpers/theme";
+import createAppTheme from "./helpers/theme";
 import store from "./helpers/store";
 import LocalesManager from "./LocalesManager";
 import ModulesManager from "./ModulesManager";
 import ModulesManagerProvider from "./ModulesManagerProvider";
-import { App, baseApiUrl, apiHeaders } from "@openimis/fe-core";
+import { App, FatalError, baseApiUrl, apiHeaders } from "@openimis/fe-core";
+import getConfiguredLogo from "./helpers/logo";
 import messages_ref from "./translations/ref.json";
 import "./index.css";
-import logo from "./openIMIS.png";
+import "./rc-cascader.css";
 
-// Create a client for React Query
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 3,
-      staleTime: 5 * 60 * 1000, // 5 minutes
-    },
-  },
+Sentry.init({ 
+  dsn: process.env.REACT_APP_SENTRY_DSN,
+  debug: false,
+  integrations: [
+    Sentry.browserTracingIntegration(),
+  ],
+  tracesSampleRate: 1.0,
 });
 
 const loadConfiguration = async () => {
@@ -36,6 +35,7 @@ const loadConfiguration = async () => {
     body: JSON.stringify({ "query": "{ moduleConfigurations { module, config, controls{ field, usage } } }" }),
   });
   if (!response.ok) {
+    Sentry.captureException(new Error(`${response.status} ${response.statusText}`));
     throw response;
   } else {
     const { data } = await response.json();
@@ -58,50 +58,42 @@ const AppContainer = () => {
 
   useEffect(() => {
     loadConfiguration().then(
-      (config) =>
+      (config) => {
         setAppState({
           error: null,
           isLoading: false,
           config,
-        }),
-      (error) =>
+        });
+      },
+      (error) => {
+        Sentry.captureException(new Error("Failed to load configuration"));
         setAppState({
           error,
           isLoading: false,
-        }),
+        });
+      }
     );
-  }, []);
+  }, []);  
+
+  const themeColor = appState?.config?.["fe-core"]?.theme;
+  const dynamicTheme = createAppTheme(themeColor || {});
+  const logo = getConfiguredLogo(appState.config);
+  const disableTextLogo = appState?.config?.["fe-core"]?.logo?.disableTextLogo || false;
 
   if (appState.isLoading) {
     return (
-      <MuiThemeProvider theme={theme}>
+      <MuiThemeProvider theme={dynamicTheme}>
         <LinearProgress className="bootstrap" />
       </MuiThemeProvider>
     );
   } else if (appState.error) {
-    // Simple error display without using hooks that require context
     return (
-      <MuiThemeProvider theme={theme}>
-        <div style={{ 
-          textAlign: 'center', 
-          height: '70vh', 
-          display: 'flex', 
-          flexDirection: 'column', 
-          justifyContent: 'center', 
-          alignItems: 'center' 
-        }}>
-          <img src={logo} alt="Logo of openIMIS" style={{ maxHeight: '128px', margin: '16px' }} />
-          <Typography variant="h1" style={{ margin: '16px', textTransform: 'uppercase', fontWeight: 'bold' }}>
-            {appState.error.status || 'Error'}
-          </Typography>
-          <Typography variant="h2" style={{ margin: '16px', textTransform: 'uppercase', fontWeight: 'bold' }}>
-            Fatal Error
-          </Typography>
-          <Typography variant="body1" style={{ margin: '16px', fontSize: '18px' }}>
-            {appState.error.statusText || 'An unexpected error occurred'}
-          </Typography>
-        </div>
-      </MuiThemeProvider>
+      <FatalError
+        error={{
+          code: appState.error.status,
+          message: appState.error.statusText,
+        }}
+      />
     );
   } else {
     const modulesManager = new ModulesManager(appState.config);
@@ -111,27 +103,35 @@ const AppContainer = () => {
     }, []);
 
     const middlewares = modulesManager.getContribs("middlewares");
-
+    
     return (
-      <QueryClientProvider client={queryClient}>
-        <MuiThemeProvider theme={theme}>
-          <Provider store={store(reducers, middlewares)}>
-            <MuiPickersUtilsProvider utils={MomentUtils}>
-              <ModulesManagerProvider modulesManager={modulesManager}>
-                <App
-                  basename={process.env.PUBLIC_URL}
-                  localesManager={localesManager}
-                  messages={messages_ref}
-                  logo={logo}
-                />
-              </ModulesManagerProvider>
-            </MuiPickersUtilsProvider>
-          </Provider>
-        </MuiThemeProvider>
-      </QueryClientProvider>
+      <MuiThemeProvider theme={dynamicTheme}>
+        <Provider store={store(reducers, middlewares)}>
+          <MuiPickersUtilsProvider utils={MomentUtils}>
+            <ModulesManagerProvider modulesManager={modulesManager}>
+              <App
+                basename={process.env.PUBLIC_URL}
+                localesManager={localesManager}
+                messages={messages_ref}
+                logo={logo}
+                disableTextLogo={disableTextLogo}
+              />
+            </ModulesManagerProvider>
+          </MuiPickersUtilsProvider>
+        </Provider>
+      </MuiThemeProvider>
     );
   }
 };
 
-ReactDOM.render(<AppContainer />, document.getElementById("root"));
+ReactDOM.render(
+  <Sentry.ErrorBoundary
+    fallback={<FatalError error={{ code: 500, message: "An unexpected error occurred" }} />}
+    showDialog
+  >
+    <AppContainer />
+  </Sentry.ErrorBoundary>,
+  document.getElementById("root")
+);
+
 serviceWorker.register();

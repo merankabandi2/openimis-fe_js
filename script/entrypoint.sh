@@ -46,6 +46,6 @@ echo "Hosting on https://""$NEW_OPENIMIS_HOST"
 echo "root uri $PUBLIC_URL"
 echo "root api $REACT_APP_API_URL"
 echo "root restapi $ROOT_MOBILEAPI"
+echo "OpenSearch proxy base root $OPENSEARCH_PROXY_ROOT"
 
 exec "$@"
-

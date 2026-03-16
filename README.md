@@ -294,3 +294,168 @@ Conclusions:
 ### How to report another issues? 
 If you face another issues not described in that section you could use our [ticketing site](https://openimis.atlassian.net/servicedesk/customer/portal/1). 
 Here you can report any bugs/problems you faced during setting up openIMIS app. 
+
+
+## 🎨 Theme & Logo Configuration
+
+To customize the appearance of your openIMIS frontend, you can define a `theme` and optionally a `logo` configuration in your module settings either on database level or django admin panel (table `moduleConfiguration`).
+
+### 🧹 JSON Configuration Structure
+
+#### Theme Configuration (`theme`)
+
+To override the default theme colors, provide a `theme` object under the `fe-core` module configuration. Below is the full structure with all supported properties:
+
+```json
+{
+  "theme": {
+    "name": "defaultBlue",
+    "primaryColor": "#004E96",
+    "errorColor": "#801a00",
+    "whiteColor": "#ffffff",
+    "backgroundColor": "#e4f2ff",
+    "headerColor": "#BCD4E6",
+    "greyColor": "grey",
+    "selectedTableRowColor": "rgba(0, 0, 0, 0.08)",
+    "hoveredTableRowColor": "rgba(0, 0, 0, 0.12)",
+    "toggledButtonColor": "#999999",
+    "lockedBackgroundPattern": "repeating-linear-gradient(45deg, #D3D3D3 1px, #D3D3D3 1px, #fff 10px, #fff 10px)"
+  }
+}
+```
+
+##### Description of Properties:
+
+| Property                  | Description                                               |
+| ------------------------- | --------------------------------------------------------- |
+| `name`                    | Optional name identifier for the theme                    |
+| `primaryColor`            | Main brand color used in headers, buttons, text, etc.     |
+| `errorColor`              | Used to highlight errors or critical UI elements          |
+| `whiteColor`              | Used for contrasting text and background elements         |
+| `backgroundColor`         | General background color for the app                      |
+| `headerColor`             | Header background color                                   |
+| `greyColor`               | Used for subdued UI elements (e.g., disabled text)        |
+| `selectedTableRowColor`   | Background for selected table rows                        |
+| `hoveredTableRowColor`    | Background for hovered table rows                         |
+| `toggledButtonColor`      | Background for toggled/active state buttons               |
+| `lockedBackgroundPattern` | Background pattern used for locked (readonly) UI elements |
+
+**Note:** If `theme` is not provided, the default openIMIS theme will be used instead.
+
+---
+
+#### 🖼️ Logo Configuration (`logo`)
+
+Add additional property 
+under `fe-core` configuration in `moduleConfiguration`. Logos can also be configured via base64-encoded images. This allows the UI to show custom branding without bundling new static files.
+
+```json
+{
+  "logo": {
+    "value": "data:image/png;base64,iVBORw0KGgoAAAANSUhEU...",
+    "disableTextLogo": true
+  }
+}
+```
+
+**Note:** Supported formats: `svg+xml`, `jpeg`, `png`
+
+##### Logo Fields:
+
+| Property | Description                                                           |
+| -------- | --------------------------------------------------------------------- |
+| `value`  | Base64-encoded string of the main logo |
+| `disableTextLogo`  | *(Optional)* Do not show `openIMIS` text next to logo: `true` or `false`. By default `false` |
+
+**Note:** If `logo.value` is not provided, the default openIMIS logo will be used instead.
+
+---
+
+### ✅ Example GraphQL Response from `module configuration` GQL
+
+```json
+{
+  "moduleConfigurations": [
+    {
+      "module": "fe-core",
+      "config": "{\"theme\":{...}, \"logo\":{...}}"
+    }
+  ]
+}
+```
+
+## Frontend Development Setup with CRACO and API Proxy
+
+This frontend project uses CRACO to customize Create React App configurations without ejecting. It also sets up a flexible proxy system for API routing during development.
+
+### 🔧 Requirements
+
+* Node.js (v16+ recommended)
+* Yarn
+
+### 📦 Setup
+
+1. **Install dependencies**:
+
+   ```bash
+   yarn install
+   ```
+
+2. **Create `.env` file** (if it doesn't exist):
+
+   ```env
+   API_PROXY_TARGET=http://localhost:8000
+   ```
+
+   * Use `http://backend:8000` if you're running the backend as a Docker container.
+
+3. **Start the dev server**:
+
+   ```bash
+   yarn start
+   ```
+
+   This will start the frontend on `http://localhost:3000/front` and proxy all API requests from `/api` to the `API_PROXY_TARGET` defined above.
+
+### 🌐 Proxy Configuration
+
+The proxy logic is handled in `src/setupProxy.js`. It reads `API_PROXY_TARGET` from the environment to dynamically redirect API calls to the appropriate backend:
+
+* `/api` → `$API_PROXY_TARGET`
+* Additional proxies (e.g. `/opensearch`) are configured statically in `package.json`:
+
+```json
+"proxies": {
+  "opensearch": {
+    "base": "/opensearch",
+    "target": "http://opensearch:5410"
+  }
+}
+```
+
+### ⚙️ CRACO Configuration
+
+`craco.config.js` sets:
+
+* `output.publicPath` to `/front/` to support deployment under sub-paths.
+* `DefinePlugin` to inject environment variables.
+* Dev server `historyApiFallback` and proxy behavior.
+
+```js
+webpackConfig.output.publicPath = '/front/';
+```
+
+### 📁 Folder Structure
+
+* `src/setupProxy.js`: Middleware proxy setup
+* `craco.config.js`: Webpack and dev server overrides
+* `.env`: Environment-specific overrides
+
+### ✅ Tips
+
+* Make sure the backend server is running and accessible from your frontend environment.
+* Use Docker network names like `http://backend:8000` when both frontend and backend are running in Docker.
+* Set `PUBLIC_URL=/front` if needed to ensure assets load correctly.
+
+### Using Sentry with GlitchTip
+* set your sentry/glitchtip dsn in the .env file to capture errors and exceptions in your React app
