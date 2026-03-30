@@ -28,7 +28,7 @@
     },
     {
       "name": "SocialProtectionModule",
-      "npm": "@openimis/fe-social_protection@git+https://github.com/openimis/openimis-fe-social_protection_js.git#release/26.04"
+      "npm": "@openimis/fe-social_protection@git+https://github.com/merankabandi2/openimis-fe-social_protection_js.git#configurable-loc-levels"
     },
     {
       "name": "OpenSearchReportsModule",
@@ -96,15 +96,43 @@
     },
     {
       "name": "PayrollModule",
-      "npm": "@openimis/fe-payroll@git+https://github.com/openimis/openimis-fe-payroll_js.git#release/26.04"
+      "npm": "@openimis/fe-payroll@git+https://github.com/merankabandi2/openimis-fe-payroll_js.git#allow-payroll--page-overrides"
     },
     {
       "name": "GrievanceSocialProtectionModule",
-      "npm": "@openimis/fe-grievance_social_protection@git+https://github.com/openimis/openimis-fe-grievance_social_protection_js.git#release/26.04"
+      "npm": "@openimis/fe-grievance_social_protection@git+https://github.com/openimis-wb/openimis-fe-grievance_social_protection_js.git#feature/hierarchical-category-selection"
+    },
+    {
+      "name": "InsureeModule",
+      "npm": "@openimis/fe-insuree@https://github.com/openimis/openimis-fe-insuree_js#release/26.04"
+    },
+    {
+      "name": "MedicalModule",
+      "npm": "@openimis/fe-medical@https://github.com/openimis/openimis-fe-medical_js#release/26.04"
+    },
+    {
+      "name": "ClaimModule",
+      "npm": "@openimis/fe-claim@https://github.com/openimis/openimis-fe-claim_js#release/26.04"
+    },
+    {
+      "name": "PolicyModule",
+      "npm": "@openimis/fe-policy@https://github.com/openimis/openimis-fe-policy_js#release/26.04"
+    },
+    {
+      "name": "AnalyticsModule",
+      "npm": "@openimis/fe-analytics@git+https://github.com/merankabandi2/openimis-fe-analytics_js.git#master"
+    },
+    {
+      "name": "NotificationModule",
+      "npm": "@openimis/fe-notification@git+https://github.com/merankabandi2/openimis-fe-notification_js.git#master"
+    },
+    {
+      "name": "ActivityModule",
+      "npm": "@openimis/fe-activity@git+https://github.com/merankabandi2/openimis-fe-activity_js.git#master"
     },
     {
       "name": "MerankabandiModule",
-      "npm": "@openimis/openimis-fe-merankabandi_js@git+https://github.com/merankabandi2/openimis-fe-merankabandi_js.git#main"
+      "npm": "@openimis/fe-merankabandi@git+https://github.com/merankabandi2/openimis-fe-merankabandi_js.git#main"
     }
   ]
 }
