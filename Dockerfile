@@ -64,9 +64,9 @@ RUN npm config set fetch-retry-mintimeout 20000 \
     && npm config set audit false \
     && npm config set fund false
 
-RUN npm install --include=dev --legacy-peer-deps || \
+RUN npm install --include=dev --legacy-peer-deps --ignore-scripts || \
     (echo "First attempt failed, retrying in 10s..." && sleep 10 && \
-     npm install --include=dev --legacy-peer-deps)
+     npm install --include=dev --legacy-peer-deps --ignore-scripts)
 
 # =============================================================================
 # Build stage — load config, install module deps, build
