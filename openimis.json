@@ -100,7 +100,7 @@
     },
     {
       "name": "GrievanceSocialProtectionModule",
-      "npm": "@openimis/fe-grievance_social_protection@git+https://github.com/openimis-wb/openimis-fe-grievance_social_protection_js.git#feature/hierarchical-category-selection"
+      "npm": "@openimis/fe-grievance_social_protection@git+https://github.com/openimis/openimis-fe-grievance_social_protection_js.git#release/26.04"
     },
     {
       "name": "AnalyticsModule",
